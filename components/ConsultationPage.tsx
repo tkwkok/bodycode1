@@ -26,7 +26,7 @@ const ConsultationPage: React.FC = () => {
                    <PremiumFeature>서비스 기간 내 <strong>메신저를 통한 상시 Q&A</strong></PremiumFeature>
                 </ul>
                 <div className="mt-8 text-center">
-                    <p className="text-4xl font-bold text-slate-900 dark:text-white">월 29,900원</p>
+                    <p className="text-4xl font-bold text-slate-900 dark:text-white">월 9,900원</p>
                     <p className="text-sm text-slate-500 dark:text-slate-400">(VAT 포함)</p>
                 </div>
             </div>

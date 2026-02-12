@@ -55,22 +55,47 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
     const parsedSections = useMemo(() => {
         if (!text) return { sections: {}, supplements: [], tip: null };
 
-        const allSections = text.split('### ').filter(s => s.trim() !== '');
         const sectionsMap: { [key: string]: string } = {};
         let tipOfTheDay: string | null = null;
         
-        allSections.forEach(section => {
-            const lines = section.split('\n');
-            const titleWithEmoji = lines[0].trim();
-            const title = titleWithEmoji.split(' ').slice(1).join(' ').trim();
-            const content = lines.slice(1).join('\n').trim();
+        let currentTitle: string | null = null;
+        let currentContent: string[] = [];
+        
+        const lines = text.split('\n');
 
-            if (title === '오늘의 장-뇌 축 팁') {
-                tipOfTheDay = content;
-            } else if (title) {
-                sectionsMap[title] = content;
+        const flushContent = () => {
+            if (currentTitle) {
+                const content = currentContent.join('\n').trim();
+                if (currentTitle === '오늘의 장-뇌 축 팁') {
+                    tipOfTheDay = content;
+                } else {
+                    sectionsMap[currentTitle] = content;
+                }
             }
-        });
+            currentContent = [];
+        };
+
+        for (const line of lines) {
+            if (line.startsWith('###')) {
+                flushContent();
+                const titleLine = line.replace(/###\s*(?:🔬|💊|⚖️|🛒|🌿|🌱|⚠️)?\s*/, '').trim();
+                
+                const foundTitle = Object.keys(sectionConfig).find(key => titleLine.includes(key));
+
+                if (titleLine.includes('오늘의 장-뇌 축 팁')) {
+                    currentTitle = '오늘의 장-뇌 축 팁';
+                } else if (foundTitle) {
+                    currentTitle = foundTitle;
+                } else {
+                    currentTitle = null; 
+                }
+            } else {
+                if (currentTitle) {
+                    currentContent.push(line);
+                }
+            }
+        }
+        flushContent();
 
         const recommendedSupplementsText = sectionsMap['추천 영양 성분'] || '';
         const supplements = recommendedSupplementsText.split('\n').filter(line => line.trim().startsWith('- **')).map(line => line.substring(4).split(':**')[0].trim());
@@ -105,7 +130,7 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
 
             {Object.entries(sections).map(([title, content]) => {
                 const config = sectionConfig[title];
-                if (!config) return null;
+                if (!config || typeof content !== 'string') return null;
 
                 return <SectionCard key={title} title={title} content={content} icon={config.icon} color={config.color} />;
             })}
