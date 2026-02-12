@@ -67,7 +67,8 @@ const App: React.FC = () => {
 `
       };
       
-      const stream = await chat.sendMessageStream({ message: { parts: [textPart, imagePart] } });
+      // FIX: The `message` parameter for `sendMessageStream` should be an array of parts, not an object with a `parts` property.
+      const stream = await chat.sendMessageStream({ message: [textPart, imagePart] });
 
       let botResponse = '';
       setMessages(prev => [...prev, { role: 'bot', text: '' }]);
@@ -180,15 +181,13 @@ const App: React.FC = () => {
                               심층 분석과 지속적인 건강 관리를 원하신다면, 전문 약사의 1:1 맞춤 상담을 신청하세요.
                           </p>
                       </div>
-                      <form action="https://formspree.io/f/xykdkrbj" method="POST" className="flex-shrink-0">
-                        <button 
-                            type="submit"
-                            className="inline-flex items-center justify-center px-6 py-3 bg-emerald-500 text-white font-bold rounded-full text-md shadow-lg hover:bg-emerald-600 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-emerald-300 dark:focus:ring-emerald-700"
-                        >
-                            <UserIcon className="w-5 h-5 mr-2" />
-                            약사 1:1 상담 신청하기
-                        </button>
-                      </form>
+                      <a 
+                          href="mailto:contact@bodycode.example.com?subject=바디코드: 약사 1:1 상담 신청"
+                          className="flex-shrink-0 inline-flex items-center justify-center px-6 py-3 bg-emerald-500 text-white font-bold rounded-full text-md shadow-lg hover:bg-emerald-600 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-emerald-300 dark:focus:ring-emerald-700"
+                      >
+                          <UserIcon className="w-5 h-5 mr-2" />
+                          약사 1:1 상담 신청하기
+                      </a>
                   </div>
               </div>
             </>

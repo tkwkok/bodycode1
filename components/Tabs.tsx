@@ -21,7 +21,8 @@ const TabButton: React.FC<{
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
         >
-            {React.cloneElement(icon, { className: 'w-5 h-5' })}
+            {/* FIX: Explicitly provide the props type to React.cloneElement to fix the type error. */}
+            {React.cloneElement<React.SVGProps<SVGSVGElement>>(icon, { className: 'w-5 h-5' })}
             {label}
         </button>
     );
