@@ -73,7 +73,7 @@ const App: React.FC = () => {
       setIsChatting(true);
 
       const userMessage: ChatMessage = { role: 'user', text: "제 건강 데이터입니다. 분석해주세요." };
-      setMessages([userMessage]);
+      setMessages([userMessage, { role: 'bot', text: '' }]); // Add bot placeholder immediately
       
       const imagePart = { inlineData: { mimeType: imageFile.type, data: base64Data } };
       const additionalInfo = { age, stress, sleep, bowel, healthNotes, medications, otherSupplements, conditions };
@@ -94,19 +94,16 @@ const App: React.FC = () => {
       
       const stream = await chat.sendMessageStream({ message: [textPart, imagePart] });
 
-      let botResponse = '';
-      setMessages(prev => [...prev, { role: 'bot', text: '' }]);
-
       for await (const chunk of stream) {
         const chunkText = chunk.text;
         if (typeof chunkText === 'string') {
-            botResponse += chunkText;
             setMessages(prev => {
-              const newMessages = [...prev];
-              if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === 'bot') {
-                newMessages[newMessages.length - 1] = { role: 'bot', text: botResponse };
-              }
-              return newMessages;
+                const lastMessage = prev[prev.length - 1];
+                if (lastMessage && lastMessage.role === 'bot') {
+                    const updatedLastMessage = { ...lastMessage, text: lastMessage.text + chunkText };
+                    return [...prev.slice(0, -1), updatedLastMessage];
+                }
+                return prev;
             });
         }
       }
@@ -126,25 +123,22 @@ const App: React.FC = () => {
     if (!chat || !text.trim()) return;
 
     const userMessage: ChatMessage = { role: 'user', text: text };
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage, { role: 'bot', text: '' }]);
     setIsLoading(true);
 
     try {
         const stream = await chat.sendMessageStream({ message: text });
         
-        let botResponse = '';
-        setMessages(prev => [...prev, { role: 'bot', text: '' }]);
-
         for await (const chunk of stream) {
             const chunkText = chunk.text;
             if(typeof chunkText === 'string') {
-                botResponse += chunkText;
                 setMessages(prev => {
-                    const newMessages = [...prev];
-                     if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === 'bot') {
-                       newMessages[newMessages.length - 1] = { role: 'bot', text: botResponse };
-                     }
-                    return newMessages;
+                    const lastMessage = prev[prev.length - 1];
+                    if (lastMessage && lastMessage.role === 'bot') {
+                        const updatedLastMessage = { ...lastMessage, text: lastMessage.text + chunkText };
+                        return [...prev.slice(0, -1), updatedLastMessage];
+                    }
+                    return prev;
                 });
             }
         }
