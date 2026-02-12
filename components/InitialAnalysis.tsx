@@ -62,13 +62,12 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
         allSections.forEach(section => {
             const lines = section.split('\n');
             const titleWithEmoji = lines[0].trim();
-            // Robust title parsing to prevent crashes
-            const title = titleWithEmoji.replace(/^(\s*#+\s*)?[^\s]+\s*/, '').trim();
+            const title = titleWithEmoji.split(' ').slice(1).join(' ').trim();
             const content = lines.slice(1).join('\n').trim();
 
             if (title === '오늘의 장-뇌 축 팁') {
                 tipOfTheDay = content;
-            } else if (title) { // Ensure title is not empty
+            } else if (title) {
                 sectionsMap[title] = content;
             }
         });

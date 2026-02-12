@@ -9,6 +9,8 @@ interface AdditionalInfoFormProps {
     setSleep: (value: string) => void;
     bowel: string;
     setBowel: (value: string) => void;
+    conditions: string;
+    setConditions: (value: string) => void;
     healthNotes: string;
     setHealthNotes: (value: string) => void;
     medications: string;
@@ -56,7 +58,8 @@ const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = (props) => {
         age, setAge, 
         stress, setStress, 
         sleep, setSleep, 
-        bowel, setBowel, 
+        bowel, setBowel,
+        conditions, setConditions,
         healthNotes, setHealthNotes,
         medications, setMedications,
         otherSupplements, setOtherSupplements,
@@ -68,18 +71,33 @@ const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = (props) => {
                 추가 정보 입력 (더 정확한 분석을 위해)
             </h3>
             <div className="space-y-6">
-                <div>
-                    <label htmlFor="age" className="block text-md font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        나이 (만)
-                    </label>
-                    <input
-                        id="age"
-                        type="number"
-                        value={age}
-                        onChange={(e) => setAge(e.target.value)}
-                        placeholder="예) 35"
-                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
-                    />
+                <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label htmlFor="age" className="block text-md font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            나이 (만)
+                        </label>
+                        <input
+                            id="age"
+                            type="number"
+                            value={age}
+                            onChange={(e) => setAge(e.target.value)}
+                            placeholder="예) 35"
+                            className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                        />
+                    </div>
+                     <div>
+                        <label htmlFor="conditions" className="block text-md font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            보유 질환 (있을 경우)
+                        </label>
+                        <input
+                            id="conditions"
+                            type="text"
+                            value={conditions}
+                            onChange={(e) => setConditions(e.target.value)}
+                            placeholder="예) 고혈압, 당뇨, 고지혈증"
+                            className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                        />
+                    </div>
                 </div>
                 <RadioGroup
                     label="최근 스트레스 지수는 어떤가요?"

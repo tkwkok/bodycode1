@@ -20,13 +20,13 @@ const ConsultationPage: React.FC = () => {
             <div className="mt-10 max-w-lg mx-auto bg-slate-50 dark:bg-slate-800/50 p-8 rounded-2xl border border-slate-200 dark:border-slate-700">
                 <h3 className="text-2xl font-bold text-center text-slate-800 dark:text-white">서비스 포함 내역</h3>
                 <ul className="mt-6 space-y-4">
-                   <PremiumFeature><strong>전문 약사 1:1 비대면 심층 상담</strong> (월 1회)</PremiumFeature>
-                   <PremiumFeature>삼성헬스, 인바디, 복약 기록을 종합 분석한 <strong>[월간 건강 성적표] PDF 리포트</strong> 제공</PremiumFeature>
-                   <PremiumFeature>AI 분석 결과에 대한 <strong>전문 약사의 심층 분석 코멘트</strong> 추가 제공</PremiumFeature>
-                   <PremiumFeature>서비스 기간 내 <strong>메신저를 통한 실시간 Q&A</strong></PremiumFeature>
+                   <PremiumFeature>전문 약사의 <strong>지속적인 복약 관리 및 월간 리포트</strong></PremiumFeature>
+                   <PremiumFeature>복용 중인 <strong>모든 의약품과 영양제의 상호작용</strong> 정밀 분석</PremiumFeature>
+                   <PremiumFeature>삼성헬스 등 라이프로그 데이터 기반 <strong>생활습관 밀착 코칭</strong></PremiumFeature>
+                   <PremiumFeature>서비스 기간 내 <strong>메신저를 통한 상시 Q&A</strong></PremiumFeature>
                 </ul>
                 <div className="mt-8 text-center">
-                    <p className="text-4xl font-bold text-slate-900 dark:text-white">월 49,900원</p>
+                    <p className="text-4xl font-bold text-slate-900 dark:text-white">월 29,900원</p>
                     <p className="text-sm text-slate-500 dark:text-slate-400">(VAT 포함)</p>
                 </div>
             </div>

@@ -4,9 +4,16 @@ import { UploadIcon } from './icons';
 interface ImageUploaderProps {
   onImageUpload: (file: File) => void;
   previewUrl: string | null;
+  title?: string;
+  description?: string;
 }
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload, previewUrl }) => {
+const ImageUploader: React.FC<ImageUploaderProps> = ({ 
+  onImageUpload, 
+  previewUrl,
+  title = "이미지 업로드",
+  description = "이미지를 드래그 앤 드롭하거나 여기를 클릭하세요."
+}) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,9 +65,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload, previewUrl
           ) : (
             <>
               <UploadIcon className="w-16 h-16 text-slate-400 dark:text-slate-500" />
-              <p className="mt-4 text-lg font-semibold text-slate-700 dark:text-slate-300">건강 데이터 이미지 업로드</p>
+              <p className="mt-4 text-lg font-semibold text-slate-700 dark:text-slate-300">{title}</p>
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                인바디 또는 건강검진 결과지를 드래그 앤 드롭하거나 여기를 클릭하세요.
+                {description}
               </p>
             </>
           )}

@@ -87,10 +87,12 @@ const CompatibilityChecker: React.FC = () => {
                 </div>
 
                 <div>
-                    <label className="block text-md font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        새로 추가할 영양제 이미지
-                    </label>
-                    <ImageUploader onImageUpload={handleImageChange} previewUrl={previewUrl} />
+                    <ImageUploader 
+                        onImageUpload={handleImageChange} 
+                        previewUrl={previewUrl}
+                        title="새로 추가할 영양제 이미지"
+                        description="제품의 성분표가 잘 보이도록 촬영하여 업로드해주세요."
+                    />
                 </div>
             </div>
 

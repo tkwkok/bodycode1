@@ -35,6 +35,7 @@ const App: React.FC = () => {
   const [healthNotes, setHealthNotes] = useState('');
   const [medications, setMedications] = useState('');
   const [otherSupplements, setOtherSupplements] = useState('');
+  const [conditions, setConditions] = useState('');
 
   useEffect(() => {
     setChat(createChat());
@@ -75,12 +76,13 @@ const App: React.FC = () => {
       setMessages([userMessage]);
       
       const imagePart = { inlineData: { mimeType: imageFile.type, data: base64Data } };
-      const additionalInfo = { age, stress, sleep, bowel, healthNotes, medications, otherSupplements };
+      const additionalInfo = { age, stress, sleep, bowel, healthNotes, medications, otherSupplements, conditions };
       const textPart = {
         text: `
 [분석 요청]
 아래 추가 정보를 바탕으로 업로드된 건강 데이터(인바디 또는 건강검진 결과) 이미지를 종합적으로 분석해주세요.
 - 나이: ${additionalInfo.age || '정보 없음'}
+- 보유 질환: ${additionalInfo.conditions || '정보 없음'}
 - 스트레스 지수: ${additionalInfo.stress || '정보 없음'}
 - 수면의 질: ${additionalInfo.sleep || '정보 없음'}
 - 배변 활동 상태: ${additionalInfo.bowel || '정보 없음'}
@@ -158,7 +160,12 @@ const App: React.FC = () => {
                 <ChatView messages={messages} onSendMessage={handleSendMessage} isLoading={isLoading} />
             ) : (
                 <div className="bg-white dark:bg-slate-900/50 shadow-lg rounded-2xl p-6 md:p-8 border border-slate-200/50 dark:border-slate-800 mt-6">
-                    <ImageUploader onImageUpload={handleImageChange} previewUrl={previewUrl} />
+                    <ImageUploader 
+                        onImageUpload={handleImageChange} 
+                        previewUrl={previewUrl}
+                        title="건강 데이터 이미지 업로드"
+                        description="인바디 또는 건강검진 결과지를 드래그 앤 드롭하거나 여기를 클릭하세요."
+                    />
                     
                     {previewUrl && (
                         <AdditionalInfoForm 
@@ -166,6 +173,7 @@ const App: React.FC = () => {
                             stress={stress} setStress={setStress}
                             sleep={sleep} setSleep={setSleep}
                             bowel={bowel} setBowel={setBowel}
+                            conditions={conditions} setConditions={setConditions}
                             healthNotes={healthNotes} setHealthNotes={setHealthNotes}
                             medications={medications} setMedications={setMedications}
                             otherSupplements={otherSupplements} setOtherSupplements={setOtherSupplements}
