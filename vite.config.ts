@@ -1,7 +1,10 @@
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-
+export default defineConfig({
+  base: './',  // 이 부분이 있는지 확인하고, 없다면 추가해 보세요.
+  // ... 나머지 설정
+})
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
