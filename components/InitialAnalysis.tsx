@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { MicroscopeIcon, PillIcon, ShieldCheckIcon, CartIcon, LeafIcon, SparklesIcon, BrainIcon } from './icons';
+import { MicroscopeIcon, PillIcon, ShieldCheckIcon, CartIcon, LeafIcon, BrainIcon, ScaleIcon } from './icons';
 import GamifiedReminder from './GamifiedReminder';
 import SamsungHealthInsights from './SamsungHealthInsights';
 
@@ -16,12 +16,14 @@ const colorClasses = {
   orange: { border: 'border-orange-500', bg: 'bg-orange-100', text: 'text-orange-600', darkBg: 'dark:bg-orange-900/50' },
   red: { border: 'border-red-500', bg: 'bg-red-100', text: 'text-red-600', darkBg: 'dark:bg-red-900/50' },
   purple: { border: 'border-purple-500', bg: 'bg-purple-100', text: 'text-purple-600', darkBg: 'dark:bg-purple-900/50' },
+  yellow: { border: 'border-yellow-500', bg: 'bg-yellow-100', text: 'text-yellow-600', darkBg: 'dark:bg-yellow-900/50' },
 };
 
 
 const sectionConfig: { [key: string]: { icon: React.FC<React.SVGProps<SVGSVGElement>>; color: keyof typeof colorClasses } } = {
     '종합 분석': { icon: MicroscopeIcon, color: 'teal' },
     '추천 영양 성분': { icon: PillIcon, color: 'blue' },
+    '성분 조절 및 약물 상호작용 주의사항': { icon: ScaleIcon, color: 'yellow'},
     '추천 제품': { icon: CartIcon, color: 'emerald' },
     '생활습관 개선 및 권고사항': { icon: LeafIcon, color: 'orange' },
     '의학적 주의사항': { icon: ShieldCheckIcon, color: 'red' },
@@ -60,12 +62,13 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
         allSections.forEach(section => {
             const lines = section.split('\n');
             const titleWithEmoji = lines[0].trim();
-            const title = titleWithEmoji.substring(titleWithEmoji.indexOf(' ')).trim();
+            // Robust title parsing to prevent crashes
+            const title = titleWithEmoji.replace(/^(\s*#+\s*)?[^\s]+\s*/, '').trim();
             const content = lines.slice(1).join('\n').trim();
 
             if (title === '오늘의 장-뇌 축 팁') {
                 tipOfTheDay = content;
-            } else {
+            } else if (title) { // Ensure title is not empty
                 sectionsMap[title] = content;
             }
         });

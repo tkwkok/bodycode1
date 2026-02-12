@@ -11,6 +11,10 @@ interface AdditionalInfoFormProps {
     setBowel: (value: string) => void;
     healthNotes: string;
     setHealthNotes: (value: string) => void;
+    medications: string;
+    setMedications: (value: string) => void;
+    otherSupplements: string;
+    setOtherSupplements: (value: string) => void;
 }
 
 const RadioGroup: React.FC<{
@@ -48,7 +52,15 @@ const RadioGroup: React.FC<{
 }
 
 const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = (props) => {
-    const { age, setAge, stress, setStress, sleep, setSleep, bowel, setBowel, healthNotes, setHealthNotes } = props;
+    const { 
+        age, setAge, 
+        stress, setStress, 
+        sleep, setSleep, 
+        bowel, setBowel, 
+        healthNotes, setHealthNotes,
+        medications, setMedications,
+        otherSupplements, setOtherSupplements,
+    } = props;
 
     return (
         <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700/50">
@@ -90,6 +102,32 @@ const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = (props) => {
                     selectedValue={bowel}
                     onChange={setBowel}
                 />
+                 <div>
+                    <label htmlFor="medications" className="block text-md font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        복용 중인 전문의약품 (있을 경우)
+                    </label>
+                    <textarea
+                        id="medications"
+                        rows={3}
+                        value={medications}
+                        onChange={(e) => setMedications(e.target.value)}
+                        placeholder="예) 고혈압약(아토르바스타틴), 당뇨약(메트포르민)"
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                    />
+                </div>
+                 <div>
+                    <label htmlFor="other-supplements" className="block text-md font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        복용 중인 다른 영양제 (있을 경우)
+                    </label>
+                    <textarea
+                        id="other-supplements"
+                        rows={3}
+                        value={otherSupplements}
+                        onChange={(e) => setOtherSupplements(e.target.value)}
+                        placeholder="예) 비타민D 4000IU, 밀크씨슬"
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                    />
+                </div>
                 <div>
                     <label htmlFor="health-notes" className="block text-md font-medium text-slate-700 dark:text-slate-300 mb-2">
                         기타 건강 정보 (최근 건강검진 결과, 염증 수치 등)

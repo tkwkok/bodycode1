@@ -13,6 +13,7 @@ import Tabs from './components/Tabs';
 import AboutPage from './components/AboutPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
 import ConsultationPage from './components/ConsultationPage';
+import CompatibilityChecker from './components/CompatibilityChecker';
 
 const App: React.FC = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -32,6 +33,8 @@ const App: React.FC = () => {
   const [sleep, setSleep] = useState('보통');
   const [bowel, setBowel] = useState('규칙적');
   const [healthNotes, setHealthNotes] = useState('');
+  const [medications, setMedications] = useState('');
+  const [otherSupplements, setOtherSupplements] = useState('');
 
   useEffect(() => {
     setChat(createChat());
@@ -72,7 +75,7 @@ const App: React.FC = () => {
       setMessages([userMessage]);
       
       const imagePart = { inlineData: { mimeType: imageFile.type, data: base64Data } };
-      const additionalInfo = { age, stress, sleep, bowel, healthNotes };
+      const additionalInfo = { age, stress, sleep, bowel, healthNotes, medications, otherSupplements };
       const textPart = {
         text: `
 [분석 요청]
@@ -81,6 +84,8 @@ const App: React.FC = () => {
 - 스트레스 지수: ${additionalInfo.stress || '정보 없음'}
 - 수면의 질: ${additionalInfo.sleep || '정보 없음'}
 - 배변 활동 상태: ${additionalInfo.bowel || '정보 없음'}
+- 복용 중인 의약품: ${additionalInfo.medications || '정보 없음'}
+- 복용 중인 다른 영양제: ${additionalInfo.otherSupplements || '정보 없음'}
 - 기타 건강 정보: ${additionalInfo.healthNotes || '정보 없음'}
 `
       };
@@ -146,6 +151,55 @@ const App: React.FC = () => {
     }
   }
 
+  const renderActiveTab = () => {
+    switch (activeTab) {
+        case 'analysis':
+            return isChatting ? (
+                <ChatView messages={messages} onSendMessage={handleSendMessage} isLoading={isLoading} />
+            ) : (
+                <div className="bg-white dark:bg-slate-900/50 shadow-lg rounded-2xl p-6 md:p-8 border border-slate-200/50 dark:border-slate-800 mt-6">
+                    <ImageUploader onImageUpload={handleImageChange} previewUrl={previewUrl} />
+                    
+                    {previewUrl && (
+                        <AdditionalInfoForm 
+                            age={age} setAge={setAge}
+                            stress={stress} setStress={setStress}
+                            sleep={sleep} setSleep={setSleep}
+                            bowel={bowel} setBowel={setBowel}
+                            healthNotes={healthNotes} setHealthNotes={setHealthNotes}
+                            medications={medications} setMedications={setMedications}
+                            otherSupplements={otherSupplements} setOtherSupplements={setOtherSupplements}
+                        />
+                    )}
+
+                    <div className="mt-8 text-center">
+                        <button
+                            onClick={handleStartAnalysis}
+                            disabled={!imageFile || isLoading}
+                            className="inline-flex items-center justify-center px-8 py-4 bg-teal-600 text-white font-bold rounded-full text-lg shadow-lg hover:bg-teal-700 disabled:bg-slate-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800"
+                        >
+                            {isLoading ? (
+                                <><LoadingSpinner /><span>{loadingMessage}</span></>
+                            ) : (
+                                <><SparklesIcon className="w-6 h-6 mr-2" /><span>바디코드 분석 시작하기</span></>
+                            )}
+                        </button>
+                    </div>
+                </div>
+            );
+        case 'compatibility':
+            return <CompatibilityChecker />;
+        case 'about':
+            return <AboutPage />;
+        case 'privacy':
+            return <PrivacyPolicyPage />;
+        case 'consultation':
+            return <ConsultationPage />;
+        default:
+            return null;
+    }
+  }
+
 
   return (
     <div className="min-h-screen font-sans flex flex-col">
@@ -153,56 +207,7 @@ const App: React.FC = () => {
         <Header />
         <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
         
-        {activeTab === 'analysis' && (
-          isChatting ? (
-              <ChatView messages={messages} onSendMessage={handleSendMessage} isLoading={isLoading} />
-          ) : (
-            <>
-              <div className="bg-white dark:bg-slate-900/50 shadow-lg rounded-2xl p-6 md:p-8 border border-slate-200/50 dark:border-slate-800 mt-6">
-                <ImageUploader onImageUpload={handleImageChange} previewUrl={previewUrl} />
-                
-                {previewUrl && (
-                  <AdditionalInfoForm 
-                    age={age}
-                    setAge={setAge}
-                    stress={stress}
-                    setStress={setStress}
-                    sleep={sleep}
-                    setSleep={setSleep}
-                    bowel={bowel}
-                    setBowel={setBowel}
-                    healthNotes={healthNotes}
-                    setHealthNotes={setHealthNotes}
-                  />
-                )}
-
-                <div className="mt-8 text-center">
-                  <button
-                    onClick={handleStartAnalysis}
-                    disabled={!imageFile || isLoading}
-                    className="inline-flex items-center justify-center px-8 py-4 bg-teal-600 text-white font-bold rounded-full text-lg shadow-lg hover:bg-teal-700 disabled:bg-slate-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800"
-                  >
-                    {isLoading ? (
-                      <>
-                        <LoadingSpinner />
-                        <span>{loadingMessage}</span>
-                      </>
-                    ) : (
-                      <>
-                        <SparklesIcon className="w-6 h-6 mr-2" />
-                        <span>바디코드 분석 시작하기</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </>
-          )
-        )}
-        {activeTab === 'about' && <AboutPage />}
-        {activeTab === 'privacy' && <PrivacyPolicyPage />}
-        {activeTab === 'consultation' && <ConsultationPage />}
-
+        {renderActiveTab()}
 
         {error && !isChatting && activeTab === 'analysis' && (
           <div className="mt-8 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg" role="alert">

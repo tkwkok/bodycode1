@@ -1,5 +1,5 @@
 import React from 'react';
-import { BeakerIcon, InfoIcon, ShieldIcon, PencilSquareIcon } from './icons';
+import { BeakerIcon, InfoIcon, ShieldIcon, PencilSquareIcon, LinkIcon } from './icons';
 
 interface TabsProps {
     activeTab: string;
@@ -29,7 +29,7 @@ const TabButton: React.FC<{
 
 const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
     return (
-        <div className="flex justify-center items-center p-2 bg-slate-100 dark:bg-slate-800 rounded-full shadow-inner gap-1 sm:gap-2">
+        <div className="flex justify-center items-center p-2 bg-slate-100 dark:bg-slate-800 rounded-full shadow-inner gap-1 sm:gap-2 flex-wrap">
             <TabButton
                 label="분석"
                 isActive={activeTab === 'analysis'}
@@ -37,19 +37,25 @@ const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
                 icon={BeakerIcon}
             />
             <TabButton
-                label="1:1 상담 신청"
+                label="성분 궁합"
+                isActive={activeTab === 'compatibility'}
+                onClick={() => setActiveTab('compatibility')}
+                icon={LinkIcon}
+            />
+            <TabButton
+                label="1:1 상담"
                 isActive={activeTab === 'consultation'}
                 onClick={() => setActiveTab('consultation')}
                 icon={PencilSquareIcon}
             />
             <TabButton
-                label="바디코드 소개"
+                label="소개"
                 isActive={activeTab === 'about'}
                 onClick={() => setActiveTab('about')}
                 icon={InfoIcon}
             />
             <TabButton
-                label="개인정보처리방침"
+                label="개인정보"
                 isActive={activeTab === 'privacy'}
                 onClick={() => setActiveTab('privacy')}
                 icon={ShieldIcon}
