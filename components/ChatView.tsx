@@ -56,7 +56,7 @@ const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage, isLoading 
                                 >
                                     {msg.role === 'bot' ? (
                                         <article className="prose dark:prose-invert prose-sm max-w-none">
-                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{typeof msg.text === 'string' ? msg.text : ''}</ReactMarkdown>
                                         </article>
                                     ) : (
                                         <p>{msg.text}</p>

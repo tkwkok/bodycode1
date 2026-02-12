@@ -129,7 +129,7 @@ const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = (props) => {
                         rows={3}
                         value={medications}
                         onChange={(e) => setMedications(e.target.value)}
-                        placeholder="예) 고혈압약(아토르바스타틴), 당뇨약(메트포르민)"
+                        placeholder="예) 고지혈증약(아토르바스타틴), 당뇨약(메트포르민)"
                         className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
                     />
                 </div>

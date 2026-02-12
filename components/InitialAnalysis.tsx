@@ -41,7 +41,7 @@ const SectionCard: React.FC<{title: string, content: string, icon: React.FC<Reac
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{title}</h2>
                 </div>
                 <article className="mt-5 pl-1 prose prose-md dark:prose-invert max-w-none">
-                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{typeof content === 'string' ? content : ''}</ReactMarkdown>
                 </article>
             </div>
         </div>
@@ -53,17 +53,18 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
     const [showHealthInsights, setShowHealthInsights] = useState(false);
 
     const parsedSections = useMemo(() => {
-        if (!text) return { sections: {}, supplements: [], tip: null };
+        if (!text || typeof text !== 'string') {
+            return { sections: {}, supplements: [], tip: null };
+        }
 
         const sectionsMap: { [key: string]: string } = {};
         let tipOfTheDay: string | null = null;
         
         let currentTitle: string | null = null;
         let currentContent: string[] = [];
-        
-        const lines = text.split('\n');
+        const knownTitles = [...Object.keys(sectionConfig), '오늘의 장-뇌 축 팁'];
 
-        const flushContent = () => {
+        const commitSection = () => {
             if (currentTitle) {
                 const content = currentContent.join('\n').trim();
                 if (currentTitle === '오늘의 장-뇌 축 팁') {
@@ -72,30 +73,26 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
                     sectionsMap[currentTitle] = content;
                 }
             }
+            currentTitle = null;
             currentContent = [];
         };
 
-        for (const line of lines) {
+        text.split('\n').forEach(line => {
             if (line.startsWith('###')) {
-                flushContent();
-                const titleLine = line.replace(/###\s*(?:🔬|💊|⚖️|🛒|🌿|🌱|⚠️)?\s*/, '').trim();
+                commitSection();
                 
-                const foundTitle = Object.keys(sectionConfig).find(key => titleLine.includes(key));
-
-                if (titleLine.includes('오늘의 장-뇌 축 팁')) {
-                    currentTitle = '오늘의 장-뇌 축 팁';
-                } else if (foundTitle) {
-                    currentTitle = foundTitle;
-                } else {
-                    currentTitle = null; 
+                const potentialTitle = line.replace(/^###\s*(?:🔬|💊|⚖️|🛒|🌿|🌱|⚠️)?\s*/, '').trim();
+                const matchedTitle = knownTitles.find(t => potentialTitle.includes(t));
+                
+                if (matchedTitle) {
+                    currentTitle = matchedTitle;
                 }
-            } else {
-                if (currentTitle) {
-                    currentContent.push(line);
-                }
+            } else if (currentTitle) {
+                currentContent.push(line);
             }
-        }
-        flushContent();
+        });
+
+        commitSection(); // Commit the very last section
 
         const recommendedSupplementsText = sectionsMap['추천 영양 성분'] || '';
         const supplements = recommendedSupplementsText.split('\n').filter(line => line.trim().startsWith('- **')).map(line => line.substring(4).split(':**')[0].trim());
@@ -123,7 +120,7 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
                     <BrainIcon className="w-10 h-10 flex-shrink-0 opacity-80" />
                     <div>
                         <h3 className="text-xl font-bold">오늘의 장-뇌 축 팁!</h3>
-                        <p className="mt-1 opacity-90"><ReactMarkdown remarkPlugins={[remarkGfm]} components={{ p: React.Fragment }}>{tip}</ReactMarkdown></p>
+                        <p className="mt-1 opacity-90"><ReactMarkdown remarkPlugins={[remarkGfm]} components={{ p: React.Fragment }}>{typeof tip === 'string' ? tip : ''}</ReactMarkdown></p>
                     </div>
                 </div>
             )}
