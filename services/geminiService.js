@@ -98,9 +98,6 @@ export const checkCompatibility = async (
         const response = await ai.models.generateContent({
             model: 'gemini-3-pro-image-preview',
             contents: { parts: [textPart, imagePart] },
-            config: {
-                responseMimeType: "application/json",
-            }
         });
         const jsonString = response.text;
         if (jsonString) {
