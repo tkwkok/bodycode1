@@ -104,3 +104,9 @@ export const PencilSquareIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props)
       <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
     </svg>
 );
+
+export const BrainIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.998 15.998 0 013.388-1.622m0 0a2.25 2.25 0 003.767-1.973 4.5 4.5 0 00-8.4-2.245c0 1.13.29 2.197.8 3.118m0 0a2.25 2.25 0 003.767-1.973 4.5 4.5 0 00-5.592 4.801 2.25 2.25 0 003.356-1.837m0 0c.337.078.686.13.978.188m-9.345 3.58a15.998 15.998 0 003.388-1.621m0 0c.337.078.686.13.978.188" />
+    </svg>
+);

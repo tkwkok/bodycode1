@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { MicroscopeIcon, PillIcon, ShieldCheckIcon, CartIcon, BellIcon, LeafIcon, SamsungHealthIcon } from './icons';
-import ReminderSetter from './ReminderSetter';
+import { MicroscopeIcon, PillIcon, ShieldCheckIcon, CartIcon, LeafIcon, SparklesIcon, BrainIcon } from './icons';
+import GamifiedReminder from './GamifiedReminder';
+import SamsungHealthInsights from './SamsungHealthInsights';
 
 interface InitialAnalysisProps {
     text: string | null;
@@ -25,9 +26,57 @@ const sectionConfig: { [key: string]: { icon: React.FC<React.SVGProps<SVGSVGElem
     '생활습관 개선 및 권고사항': { icon: LeafIcon, color: 'orange' },
     '의학적 주의사항': { icon: ShieldCheckIcon, color: 'red' },
 };
-const reminderConfig = { icon: BellIcon, color: 'purple' as keyof typeof colorClasses };
+
+const SectionCard: React.FC<{title: string, content: string, icon: React.FC<React.SVGProps<SVGSVGElement>>, color: keyof typeof colorClasses}> = ({title, content, icon: Icon, color}) => {
+    const classes = colorClasses[color];
+    return (
+        <div className={`bg-white dark:bg-slate-900/70 shadow-lg rounded-2xl border-t-4 ${classes.border} overflow-hidden`}>
+            <div className={`p-6 md:p-8`}>
+                <div className="flex items-center gap-4">
+                    <div className={`p-2.5 rounded-full ${classes.bg} ${classes.darkBg}`}>
+                        <Icon className={`w-7 h-7 ${classes.text}`} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{title}</h2>
+                </div>
+                <article className="mt-5 pl-1 prose prose-md dark:prose-invert max-w-none">
+                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+                </article>
+            </div>
+        </div>
+    );
+};
+
 
 const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
+    const [showHealthInsights, setShowHealthInsights] = useState(false);
+
+    const parsedSections = useMemo(() => {
+        if (!text) return { sections: {}, supplements: [], tip: null };
+
+        const allSections = text.split('### ').filter(s => s.trim() !== '');
+        const sectionsMap: { [key: string]: string } = {};
+        let tipOfTheDay: string | null = null;
+        
+        allSections.forEach(section => {
+            const lines = section.split('\n');
+            const titleWithEmoji = lines[0].trim();
+            const title = titleWithEmoji.substring(titleWithEmoji.indexOf(' ')).trim();
+            const content = lines.slice(1).join('\n').trim();
+
+            if (title === '오늘의 장-뇌 축 팁') {
+                tipOfTheDay = content;
+            } else {
+                sectionsMap[title] = content;
+            }
+        });
+
+        const recommendedSupplementsText = sectionsMap['추천 영양 성분'] || '';
+        const supplements = recommendedSupplementsText.split('\n').filter(line => line.trim().startsWith('- **')).map(line => line.substring(4).split(':**')[0].trim());
+
+        return { sections: sectionsMap, supplements, tip: tipOfTheDay };
+    }, [text]);
+
+
     if (!text) {
         return (
             <div className="bg-white dark:bg-slate-900 shadow-lg rounded-2xl p-6 md:p-8 flex items-center justify-center h-48 border border-slate-200 dark:border-slate-800 mt-6">
@@ -35,68 +84,31 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
             </div>
         );
     }
-
-    const sections = text.split('### ').filter(s => s.trim() !== '');
-    const recommendedSupplementsText = sections.find(s => s.includes('추천 영양 성분')) || '';
-    const supplements = recommendedSupplementsText.split('\n').filter(line => line.trim().startsWith('- **')).map(line => line.substring(4).split(':**')[0].trim());
-    const ReminderIcon = reminderConfig.icon;
+    
+    const { sections, supplements, tip } = parsedSections;
 
     return (
         <div className="space-y-6 mt-6">
-            <div className="bg-gradient-to-r from-green-500 to-teal-500 text-white p-6 rounded-2xl shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <SamsungHealthIcon className="w-8 h-8 flex-shrink-0" />
+            <SamsungHealthInsights isVisible={showHealthInsights} setVisible={setShowHealthInsights} />
+            
+            {tip && (
+                <div className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-6 rounded-2xl shadow-lg flex items-center gap-4">
+                    <BrainIcon className="w-10 h-10 flex-shrink-0 opacity-80" />
                     <div>
-                        <h3 className="text-xl font-bold">더 정밀한 분석을 원시나요?</h3>
-                        <p className="mt-1 opacity-90 text-sm">삼성 헬스 데이터를 연동하고 더 정확한 맞춤 분석을 받아보세요.</p>
+                        <h3 className="text-xl font-bold">오늘의 장-뇌 축 팁!</h3>
+                        <p className="mt-1 opacity-90"><ReactMarkdown remarkPlugins={[remarkGfm]} components={{ p: React.Fragment }}>{tip}</ReactMarkdown></p>
                     </div>
                 </div>
-                <button className="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-full transition-colors w-full sm:w-auto">
-                    <span>연동하기</span>
-                </button>
-            </div>
+            )}
 
-            {sections.map((section, index) => {
-                const lines = section.split('\n');
-                const titleWithEmoji = lines[0].trim();
-                const title = titleWithEmoji.substring(titleWithEmoji.indexOf(' ')).trim();
-                const content = lines.slice(1).join('\n').trim();
+            {Object.entries(sections).map(([title, content]) => {
                 const config = sectionConfig[title];
-                
-                if(!config) return null;
+                if (!config) return null;
 
-                const classes = colorClasses[config.color];
-                const Icon = config.icon;
-
-                return (
-                    <div key={index} className={`bg-white dark:bg-slate-900/70 shadow-lg rounded-2xl border-t-4 ${classes.border} overflow-hidden`}>
-                        <div className={`p-6 md:p-8`}>
-                            <div className="flex items-center gap-4">
-                                <div className={`p-2.5 rounded-full ${classes.bg} ${classes.darkBg}`}>
-                                    <Icon className={`w-7 h-7 ${classes.text}`} />
-                                </div>
-                                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{title}</h2>
-                            </div>
-                            <article className="mt-5 pl-1 prose prose-md dark:prose-invert max-w-none">
-                               <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-                            </article>
-                        </div>
-                    </div>
-                );
+                return <SectionCard key={title} title={title} content={content} icon={config.icon} color={config.color} />;
             })}
-             <div className={`bg-white dark:bg-slate-900/70 shadow-lg rounded-2xl border-t-4 ${colorClasses.purple.border} overflow-hidden`}>
-                <div className="p-6 md:p-8">
-                    <div className="flex items-center gap-4">
-                        <div className={`p-2.5 rounded-full ${colorClasses.purple.bg} ${colorClasses.purple.darkBg}`}>
-                            <ReminderIcon className={`w-7 h-7 ${colorClasses.purple.text}`} />
-                        </div>
-                        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">복약 알림 설정</h2>
-                    </div>
-                    <div className="mt-4">
-                        <ReminderSetter supplements={supplements} />
-                    </div>
-                </div>
-            </div>
+             
+            <GamifiedReminder supplements={supplements} />
         </div>
     );
 };
