@@ -7,7 +7,6 @@ import LoadingSpinner from './components/LoadingSpinner';
 import { createChat, validateHealthDocument } from './services/geminiService';
 import type { ChatMessage } from './types';
 import { SparklesIcon } from './components/icons';
-import AdditionalInfoForm from './components/AdditionalInfoForm';
 import { fileToBase64 } from './utils/fileUtils';
 import Tabs from './components/Tabs';
 import AboutPage from './components/AboutPage';
@@ -25,17 +24,6 @@ const App: React.FC = () => {
   const [chat, setChat] = useState<Chat | null>(null);
   const [activeTab, setActiveTab] = useState('analysis');
   const [loadingMessage, setLoadingMessage] = useState('분석 중...');
-
-
-  // State for additional user info
-  const [age, setAge] = useState<string>('');
-  const [stress, setStress] = useState('보통');
-  const [sleep, setSleep] = useState('보통');
-  const [bowel, setBowel] = useState('규칙적');
-  const [healthNotes, setHealthNotes] = useState('');
-  const [medications, setMedications] = useState('');
-  const [otherSupplements, setOtherSupplements] = useState('');
-  const [conditions, setConditions] = useState('');
 
   useEffect(() => {
     setChat(createChat());
@@ -76,21 +64,7 @@ const App: React.FC = () => {
       setMessages([userMessage, { role: 'bot', text: '' }]); // Add bot placeholder immediately
       
       const imagePart = { inlineData: { mimeType: imageFile.type, data: base64Data } };
-      const additionalInfo = { age, stress, sleep, bowel, healthNotes, medications, otherSupplements, conditions };
-      const textPart = {
-        text: `
-[분석 요청]
-아래 추가 정보를 바탕으로 업로드된 건강 데이터(인바디 또는 건강검진 결과) 이미지를 종합적으로 분석해주세요.
-- 나이: ${additionalInfo.age || '정보 없음'}
-- 보유 질환: ${additionalInfo.conditions || '정보 없음'}
-- 스트레스 지수: ${additionalInfo.stress || '정보 없음'}
-- 수면의 질: ${additionalInfo.sleep || '정보 없음'}
-- 배변 활동 상태: ${additionalInfo.bowel || '정보 없음'}
-- 복용 중인 의약품: ${additionalInfo.medications || '정보 없음'}
-- 복용 중인 다른 영양제: ${additionalInfo.otherSupplements || '정보 없음'}
-- 기타 건강 정보: ${additionalInfo.healthNotes || '정보 없음'}
-`
-      };
+      const textPart = { text: "이 건강 데이터 이미지를 분석해주세요. 만약 추가 정보가 필요하다면, 질문을 통해 얻을 수 있다고 가정하고 분석을 진행해주세요." };
       
       const stream = await chat.sendMessageStream({ message: [textPart, imagePart] });
 
@@ -173,19 +147,6 @@ const App: React.FC = () => {
                         description="인바디 또는 건강검진 결과지를 드래그 앤 드롭하거나 여기를 클릭하세요."
                     />
                     
-                    {previewUrl && (
-                        <AdditionalInfoForm 
-                            age={age} setAge={setAge}
-                            stress={stress} setStress={setStress}
-                            sleep={sleep} setSleep={setSleep}
-                            bowel={bowel} setBowel={setBowel}
-                            conditions={conditions} setConditions={setConditions}
-                            healthNotes={healthNotes} setHealthNotes={setHealthNotes}
-                            medications={medications} setMedications={setMedications}
-                            otherSupplements={otherSupplements} setOtherSupplements={setOtherSupplements}
-                        />
-                    )}
-
                     <div className="mt-8 text-center">
                         <button
                             onClick={handleStartAnalysis}
