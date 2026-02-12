@@ -1,7 +1,15 @@
 import React from 'react';
 import { SparklesIcon, ShieldCheckIcon, UserIcon } from './icons';
 
-const ValueCard = ({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) => (
+// FIX: Refactored ValueCard to use an explicit props interface and React.FC
+// to resolve a TypeScript error where the 'children' prop was not being correctly identified.
+interface ValueCardProps {
+    icon: React.ReactNode;
+    title: string;
+    children: React.ReactNode;
+}
+
+const ValueCard: React.FC<ValueCardProps> = ({ icon, title, children }) => (
     <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
         <div className="flex items-center gap-3">
             <div className="bg-teal-100 dark:bg-teal-900/50 p-2 rounded-full">
@@ -11,7 +19,7 @@ const ValueCard = ({ icon, title, children }: { icon: React.ReactNode, title: st
         </div>
         <p className="mt-3 text-slate-600 dark:text-slate-300">{children}</p>
     </div>
-)
+);
 
 const AboutPage: React.FC = () => {
     return (

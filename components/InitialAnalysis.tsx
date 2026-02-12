@@ -53,52 +53,58 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
     const [showHealthInsights, setShowHealthInsights] = useState(false);
 
     const parsedSections = useMemo(() => {
-        if (!text || typeof text !== 'string' || text.trim() === '') {
+        try {
+            if (!text || typeof text !== 'string' || text.trim() === '') {
+                return { sections: {}, supplements: [], tip: null, hasContent: false };
+            }
+
+            const sectionsMap: { [key: string]: string } = {};
+            let tipOfTheDay: string | null = null;
+            
+            let currentTitle: string | null = null;
+            let currentContent: string[] = [];
+            const knownTitles = [...Object.keys(sectionConfig), '오늘의 장-뇌 축 팁'];
+
+            const commitSection = () => {
+                if (currentTitle) {
+                    const content = currentContent.join('\n').trim();
+                    if (currentTitle === '오늘의 장-뇌 축 팁') {
+                        tipOfTheDay = content;
+                    } else {
+                        sectionsMap[currentTitle] = content;
+                    }
+                }
+                currentTitle = null;
+                currentContent = [];
+            };
+
+            text.split('\n').forEach(line => {
+                if (line.startsWith('###')) {
+                    commitSection();
+                    
+                    const potentialTitle = line.replace(/^###\s*(?:🔬|💊|⚖️|🛒|🌿|🌱|⚠️)?\s*/, '').trim();
+                    const matchedTitle = knownTitles.find(t => potentialTitle.includes(t));
+                    
+                    if (matchedTitle) {
+                        currentTitle = matchedTitle;
+                    }
+                } else if (currentTitle) {
+                    currentContent.push(line);
+                }
+            });
+
+            commitSection(); // Commit the very last section
+
+            const recommendedSupplementsText = sectionsMap['추천 영양 성분'] || '';
+            const supplements = recommendedSupplementsText.split('\n').filter(line => line.trim().startsWith('- **')).map(line => line.substring(4).split(':**')[0].trim());
+
+            const hasContent = Object.keys(sectionsMap).length > 0 || !!tipOfTheDay;
+            return { sections: sectionsMap, supplements, tip: tipOfTheDay, hasContent };
+        } catch (error) {
+            console.error("Error parsing analysis content:", error);
+            // Fallback state in case of parsing error, ensures the component doesn't crash.
             return { sections: {}, supplements: [], tip: null, hasContent: false };
         }
-
-        const sectionsMap: { [key: string]: string } = {};
-        let tipOfTheDay: string | null = null;
-        
-        let currentTitle: string | null = null;
-        let currentContent: string[] = [];
-        const knownTitles = [...Object.keys(sectionConfig), '오늘의 장-뇌 축 팁'];
-
-        const commitSection = () => {
-            if (currentTitle) {
-                const content = currentContent.join('\n').trim();
-                if (currentTitle === '오늘의 장-뇌 축 팁') {
-                    tipOfTheDay = content;
-                } else {
-                    sectionsMap[currentTitle] = content;
-                }
-            }
-            currentTitle = null;
-            currentContent = [];
-        };
-
-        text.split('\n').forEach(line => {
-            if (line.startsWith('###')) {
-                commitSection();
-                
-                const potentialTitle = line.replace(/^###\s*(?:🔬|💊|⚖️|🛒|🌿|🌱|⚠️)?\s*/, '').trim();
-                const matchedTitle = knownTitles.find(t => potentialTitle.includes(t));
-                
-                if (matchedTitle) {
-                    currentTitle = matchedTitle;
-                }
-            } else if (currentTitle) {
-                currentContent.push(line);
-            }
-        });
-
-        commitSection(); // Commit the very last section
-
-        const recommendedSupplementsText = sectionsMap['추천 영양 성분'] || '';
-        const supplements = recommendedSupplementsText.split('\n').filter(line => line.trim().startsWith('- **')).map(line => line.substring(4).split(':**')[0].trim());
-
-        const hasContent = Object.keys(sectionsMap).length > 0 || !!tipOfTheDay;
-        return { sections: sectionsMap, supplements, tip: tipOfTheDay, hasContent };
     }, [text]);
 
 
@@ -118,7 +124,7 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
                  <h3 className="text-xl font-bold text-slate-800 dark:text-white">분석 결과</h3>
                  <p className="mt-4 text-slate-600 dark:text-slate-300">AI가 분석 결과를 생성했지만, 예상치 못한 형식으로 제공되어 내용을 자동으로 분류할 수 없었습니다. 아래는 AI가 보낸 원본 텍스트입니다:</p>
                  <article className="mt-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-md whitespace-pre-wrap font-mono text-sm prose dark:prose-invert max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{typeof text === 'string' ? text : ''}</ReactMarkdown>
                  </article>
             </div>
         )
