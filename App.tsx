@@ -4,7 +4,7 @@ import Header from './components/Header';
 import ImageUploader from './components/ImageUploader';
 import ChatView from './components/ChatView';
 import LoadingSpinner from './components/LoadingSpinner';
-import { createChat } from './services/geminiService';
+import { createChat, validateHealthDocument } from './services/geminiService';
 import type { ChatMessage } from './types';
 import { SparklesIcon } from './components/icons';
 import AdditionalInfoForm from './components/AdditionalInfoForm';
@@ -23,8 +23,11 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [chat, setChat] = useState<Chat | null>(null);
   const [activeTab, setActiveTab] = useState('analysis');
+  const [loadingMessage, setLoadingMessage] = useState('분석 중...');
+
 
   // State for additional user info
+  const [age, setAge] = useState<string>('');
   const [stress, setStress] = useState('보통');
   const [sleep, setSleep] = useState('보통');
   const [bowel, setBowel] = useState('규칙적');
@@ -47,20 +50,34 @@ const App: React.FC = () => {
     }
 
     setIsLoading(true);
-    setIsChatting(true);
     setError(null);
 
-    const userMessage: ChatMessage = { role: 'user', text: "제 건강 데이터입니다. 분석해주세요." };
-    setMessages([userMessage]);
-
     try {
+      setLoadingMessage('이미지 유효성 검사 중...');
       const base64Data = await fileToBase64(imageFile);
+      const isValid = await validateHealthDocument(base64Data, imageFile.type);
+
+      if (!isValid) {
+        setError('올바른 건강검진 결과지 또는 인바디 검사지가 아닙니다. 다른 이미지를 업로드해주세요.');
+        setIsLoading(false);
+        setImageFile(null);
+        setPreviewUrl(null);
+        return;
+      }
+      
+      setLoadingMessage('데이터 분석 중...');
+      setIsChatting(true);
+
+      const userMessage: ChatMessage = { role: 'user', text: "제 건강 데이터입니다. 분석해주세요." };
+      setMessages([userMessage]);
+      
       const imagePart = { inlineData: { mimeType: imageFile.type, data: base64Data } };
-      const additionalInfo = { stress, sleep, bowel, healthNotes };
+      const additionalInfo = { age, stress, sleep, bowel, healthNotes };
       const textPart = {
         text: `
 [분석 요청]
 아래 추가 정보를 바탕으로 업로드된 건강 데이터(인바디 또는 건강검진 결과) 이미지를 종합적으로 분석해주세요.
+- 나이: ${additionalInfo.age || '정보 없음'}
 - 스트레스 지수: ${additionalInfo.stress || '정보 없음'}
 - 수면의 질: ${additionalInfo.sleep || '정보 없음'}
 - 배변 활동 상태: ${additionalInfo.bowel || '정보 없음'}
@@ -89,8 +106,10 @@ const App: React.FC = () => {
       console.error(err);
       setError('분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       setMessages(prev => prev.slice(0, 1)); // Remove bot placeholder
+      setIsChatting(false);
     } finally {
       setIsLoading(false);
+      setLoadingMessage('분석 중...');
     }
   };
   
@@ -142,16 +161,20 @@ const App: React.FC = () => {
               <div className="bg-white dark:bg-slate-900/50 shadow-lg rounded-2xl p-6 md:p-8 border border-slate-200/50 dark:border-slate-800 mt-6">
                 <ImageUploader onImageUpload={handleImageChange} previewUrl={previewUrl} />
                 
-                <AdditionalInfoForm 
-                  stress={stress}
-                  setStress={setStress}
-                  sleep={sleep}
-                  setSleep={setSleep}
-                  bowel={bowel}
-                  setBowel={setBowel}
-                  healthNotes={healthNotes}
-                  setHealthNotes={setHealthNotes}
-                />
+                {previewUrl && (
+                  <AdditionalInfoForm 
+                    age={age}
+                    setAge={setAge}
+                    stress={stress}
+                    setStress={setStress}
+                    sleep={sleep}
+                    setSleep={setSleep}
+                    bowel={bowel}
+                    setBowel={setBowel}
+                    healthNotes={healthNotes}
+                    setHealthNotes={setHealthNotes}
+                  />
+                )}
 
                 <div className="mt-8 text-center">
                   <button
@@ -162,7 +185,7 @@ const App: React.FC = () => {
                     {isLoading ? (
                       <>
                         <LoadingSpinner />
-                        <span>분석 중...</span>
+                        <span>{loadingMessage}</span>
                       </>
                     ) : (
                       <>

@@ -1,6 +1,8 @@
 import React from 'react';
 
 interface AdditionalInfoFormProps {
+    age: string;
+    setAge: (value: string) => void;
     stress: string;
     setStress: (value: string) => void;
     sleep: string;
@@ -46,7 +48,7 @@ const RadioGroup: React.FC<{
 }
 
 const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = (props) => {
-    const { stress, setStress, sleep, setSleep, bowel, setBowel, healthNotes, setHealthNotes } = props;
+    const { age, setAge, stress, setStress, sleep, setSleep, bowel, setBowel, healthNotes, setHealthNotes } = props;
 
     return (
         <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700/50">
@@ -54,6 +56,19 @@ const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = (props) => {
                 추가 정보 입력 (더 정확한 분석을 위해)
             </h3>
             <div className="space-y-6">
+                <div>
+                    <label htmlFor="age" className="block text-md font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        나이 (만)
+                    </label>
+                    <input
+                        id="age"
+                        type="number"
+                        value={age}
+                        onChange={(e) => setAge(e.target.value)}
+                        placeholder="예) 35"
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                    />
+                </div>
                 <RadioGroup
                     label="최근 스트레스 지수는 어떤가요?"
                     name="stress"

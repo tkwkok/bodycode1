@@ -1,4 +1,6 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { MicroscopeIcon, PillIcon, ShieldCheckIcon, CartIcon, BellIcon, LeafIcon, SamsungHealthIcon } from './icons';
 import ReminderSetter from './ReminderSetter';
 
@@ -16,82 +18,14 @@ const colorClasses = {
 };
 
 
-const sectionConfig: { [key: string]: { icon: React.ReactElement; color: keyof typeof colorClasses } } = {
-    '종합 분석': { icon: <MicroscopeIcon />, color: 'teal' },
-    '추천 영양 성분': { icon: <PillIcon />, color: 'blue' },
-    '추천 제품': { icon: <CartIcon />, color: 'emerald' },
-    '생활습관 개선 및 권고사항': { icon: <LeafIcon />, color: 'orange' },
-    '의학적 주의사항': { icon: <ShieldCheckIcon />, color: 'red' },
+const sectionConfig: { [key: string]: { icon: React.FC<React.SVGProps<SVGSVGElement>>; color: keyof typeof colorClasses } } = {
+    '종합 분석': { icon: MicroscopeIcon, color: 'teal' },
+    '추천 영양 성분': { icon: PillIcon, color: 'blue' },
+    '추천 제품': { icon: CartIcon, color: 'emerald' },
+    '생활습관 개선 및 권고사항': { icon: LeafIcon, color: 'orange' },
+    '의학적 주의사항': { icon: ShieldCheckIcon, color: 'red' },
 };
-const reminderConfig = { icon: <BellIcon />, color: 'purple' as keyof typeof colorClasses };
-
-
-const ProductCard: React.FC<{ productInfo: string; color: string; }> = ({ productInfo, color }) => {
-    const brandMatch = productInfo.match(/\[(.*?)\]/);
-    const nameMatch = productInfo.match(/\] (.*?)\,/);
-    const detailsMatch = productInfo.match(/\, (.*)/);
-
-    if (!brandMatch || !nameMatch || !detailsMatch) return <p>{productInfo}</p>;
-    
-    const brand = brandMatch[1];
-    const name = nameMatch[1];
-    const details = detailsMatch[1];
-
-    const classes = colorClasses[color as keyof typeof colorClasses] || colorClasses.emerald;
-
-    return (
-        <div className={`p-4 border dark:border-slate-700 rounded-lg not-prose bg-slate-50/50 dark:bg-slate-800/20 border-l-4 ${classes.border}`}>
-            <p className="font-semibold text-sm text-slate-500 dark:text-slate-400">{brand}</p>
-            <p className="font-bold text-md text-slate-800 dark:text-slate-200">{name}</p>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{details}</p>
-        </div>
-    );
-};
-
-const KeywordItem: React.FC<{ keyword: string; description: string }> = ({ keyword, description }) => (
-    <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4">
-        <span className="inline-block bg-slate-200 dark:bg-slate-700 rounded-md px-3 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 flex-shrink-0 whitespace-nowrap">
-            {keyword}
-        </span>
-        <p className="text-slate-600 dark:text-slate-300 text-base leading-relaxed mt-1 sm:mt-0">{description}</p>
-    </div>
-);
-
-
-const renderContent = (content: string, title: string): React.ReactNode => {
-    const config = sectionConfig[title];
-    if (title.includes('추천 제품')) {
-        const products = content.split('\n').filter(line => line.trim().startsWith('- '));
-        return (
-            <div className="space-y-3">
-                {products.map((prod, idx) => (
-                    <ProductCard key={idx} productInfo={prod.substring(2)} color={config.color} />
-                ))}
-            </div>
-        );
-    }
-
-    const lines = content.split('\n').filter(line => line.trim() !== '');
-    
-    const elements = lines.map((line, index) => {
-        if (line.trim().startsWith("'**") && line.trim().endsWith("**'")) {
-            return <strong key={index} className="block mt-4 mb-1 text-md text-slate-800 dark:text-slate-200">{line.replace(/'/g, '').replace(/\*\*/g, '')}</strong>;
-        }
-        if (line.trim().startsWith('- **')) {
-            const parts = line.trim().substring(2).split(':**');
-            const keyword = parts[0].replace(/\*\*/g, '').trim();
-            const description = parts.slice(1).join(':').trim();
-            return <KeywordItem key={index} keyword={keyword} description={description} />;
-        }
-        if (line.trim().startsWith('- ')) {
-            return <li key={index} className="list-disc list-inside text-base">{line.trim().substring(2)}</li>;
-        }
-        return <p key={index} className="text-base leading-relaxed">{line}</p>;
-    });
-    
-    return <div className="space-y-4">{elements}</div>;
-};
-
+const reminderConfig = { icon: BellIcon, color: 'purple' as keyof typeof colorClasses };
 
 const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
     if (!text) {
@@ -105,6 +39,7 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
     const sections = text.split('### ').filter(s => s.trim() !== '');
     const recommendedSupplementsText = sections.find(s => s.includes('추천 영양 성분')) || '';
     const supplements = recommendedSupplementsText.split('\n').filter(line => line.trim().startsWith('- **')).map(line => line.substring(4).split(':**')[0].trim());
+    const ReminderIcon = reminderConfig.icon;
 
     return (
         <div className="space-y-6 mt-6">
@@ -129,20 +64,22 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
                 const config = sectionConfig[title];
                 
                 if(!config) return null;
+
                 const classes = colorClasses[config.color];
+                const Icon = config.icon;
 
                 return (
                     <div key={index} className={`bg-white dark:bg-slate-900/70 shadow-lg rounded-2xl border-t-4 ${classes.border} overflow-hidden`}>
                         <div className={`p-6 md:p-8`}>
                             <div className="flex items-center gap-4">
                                 <div className={`p-2.5 rounded-full ${classes.bg} ${classes.darkBg}`}>
-                                    {React.cloneElement<React.SVGProps<SVGSVGElement>>(config.icon, { className: `w-7 h-7 ${classes.text}` })}
+                                    <Icon className={`w-7 h-7 ${classes.text}`} />
                                 </div>
                                 <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{title}</h2>
                             </div>
-                            <div className="mt-5 pl-1 max-w-none">
-                                {renderContent(content, title)}
-                            </div>
+                            <article className="mt-5 pl-1 prose prose-md dark:prose-invert max-w-none">
+                               <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+                            </article>
                         </div>
                     </div>
                 );
@@ -150,8 +87,8 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
              <div className={`bg-white dark:bg-slate-900/70 shadow-lg rounded-2xl border-t-4 ${colorClasses.purple.border} overflow-hidden`}>
                 <div className="p-6 md:p-8">
                     <div className="flex items-center gap-4">
-                         <div className={`p-2.5 rounded-full ${colorClasses.purple.bg} ${colorClasses.purple.darkBg}`}>
-                            {React.cloneElement<React.SVGProps<SVGSVGElement>>(reminderConfig.icon, { className: `w-7 h-7 ${colorClasses.purple.text}` })}
+                        <div className={`p-2.5 rounded-full ${colorClasses.purple.bg} ${colorClasses.purple.darkBg}`}>
+                            <ReminderIcon className={`w-7 h-7 ${colorClasses.purple.text}`} />
                         </div>
                         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">복약 알림 설정</h2>
                     </div>

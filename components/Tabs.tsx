@@ -10,8 +10,8 @@ const TabButton: React.FC<{
     label: string;
     isActive: boolean;
     onClick: () => void;
-    icon: React.ReactElement;
-}> = ({ label, isActive, onClick, icon }) => {
+    icon: React.FC<React.SVGProps<SVGSVGElement>>;
+}> = ({ label, isActive, onClick, icon: Icon }) => {
     return (
         <button
             onClick={onClick}
@@ -21,7 +21,7 @@ const TabButton: React.FC<{
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
         >
-            {React.cloneElement<React.SVGProps<SVGSVGElement>>(icon, { className: 'w-5 h-5' })}
+            <Icon className="w-5 h-5" />
             <span className="hidden sm:inline">{label}</span>
         </button>
     );
@@ -34,25 +34,25 @@ const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
                 label="분석"
                 isActive={activeTab === 'analysis'}
                 onClick={() => setActiveTab('analysis')}
-                icon={<BeakerIcon />}
+                icon={BeakerIcon}
             />
             <TabButton
                 label="1:1 상담 신청"
                 isActive={activeTab === 'consultation'}
                 onClick={() => setActiveTab('consultation')}
-                icon={<PencilSquareIcon />}
+                icon={PencilSquareIcon}
             />
             <TabButton
                 label="바디코드 소개"
                 isActive={activeTab === 'about'}
                 onClick={() => setActiveTab('about')}
-                icon={<InfoIcon />}
+                icon={InfoIcon}
             />
             <TabButton
                 label="개인정보처리방침"
                 isActive={activeTab === 'privacy'}
                 onClick={() => setActiveTab('privacy')}
-                icon={<ShieldIcon />}
+                icon={ShieldIcon}
             />
         </div>
     );
