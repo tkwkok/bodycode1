@@ -135,7 +135,9 @@ const InitialAnalysis = ({ text }) => {
                     <BrainIcon className="w-10 h-10 flex-shrink-0 opacity-80" />
                     <div>
                         <h3 className="text-xl font-bold">오늘의 장-뇌 축 팁!</h3>
-                        <p className="mt-1 opacity-90"><ReactMarkdown remarkPlugins={[remarkGfm]} components={{ p: React.Fragment }}>{typeof tip === 'string' ? tip : ''}</ReactMarkdown></p>
+                        <div className="mt-1 opacity-90 prose prose-invert max-w-none prose-p:my-0">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{typeof tip === 'string' ? tip : ''}</ReactMarkdown>
+                        </div>
                     </div>
                 </div>
             )}
