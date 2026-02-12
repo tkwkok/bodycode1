@@ -13,17 +13,61 @@
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
             },
+            // prose styling for markdown
+            typography: (theme) => ({
+                DEFAULT: {
+                    css: {
+                        '--tw-prose-body': theme('colors.slate[700]'),
+                        '--tw-prose-headings': theme('colors.slate[900]'),
+                        '--tw-prose-lead': theme('colors.slate[600]'),
+                        '--tw-prose-links': theme('colors.teal[600]'),
+                        '--tw-prose-bold': theme('colors.slate[900]'),
+                        '--tw-prose-counters': theme('colors.slate[500]'),
+                        '--tw-prose-bullets': theme('colors.slate[400]'),
+                        '--tw-prose-hr': theme('colors.slate[200]'),
+                        '--tw-prose-quotes': theme('colors.slate[900]'),
+                        '--tw-prose-quote-borders': theme('colors.slate[200]'),
+                        '--tw-prose-captions': theme('colors.slate[500]'),
+                        '--tw-prose-code': theme('colors.slate[900]'),
+                        '--tw-prose-pre-code': theme('colors.slate[200]'),
+                        '--tw-prose-pre-bg': theme('colors.slate[800]'),
+                        '--tw-prose-th-borders': theme('colors.slate[300]'),
+                        '--tw-prose-td-borders': theme('colors.slate[200]'),
+                        '--tw-prose-invert-body': theme('colors.slate[300]'),
+                        '--tw-prose-invert-headings': theme('colors.white'),
+                        '--tw-prose-invert-lead': theme('colors.slate[400]'),
+                        '--tw-prose-invert-links': theme('colors.teal[400]'),
+                        '--tw-prose-invert-bold': theme('colors.white'),
+                        '--tw-prose-invert-counters': theme('colors.slate[400]'),
+                        '--tw-prose-invert-bullets': theme('colors.slate[600]'),
+                        '--tw-prose-invert-hr': theme('colors.slate[700]'),
+                        '--tw-prose-invert-quotes': theme('colors.slate[100]'),
+                        '--tw-prose-invert-quote-borders': theme('colors.slate[700]'),
+                        '--tw-prose-invert-captions': theme('colors.slate[400]'),
+                        '--tw-prose-invert-code': theme('colors.white'),
+                        '--tw-prose-invert-pre-code': theme('colors.slate[300]'),
+                        '--tw-prose-invert-pre-bg': 'rgb(0 0 0 / 50%)',
+                        '--tw-prose-invert-th-borders': theme('colors.slate[600]'),
+                        '--tw-prose-invert-td-borders': theme('colors.slate[700]'),
+                    },
+                },
+            }),
           },
         },
+        plugins: [
+            require('@tailwindcss/typography'),
+        ],
       }
     </script>
   <script type="importmap">
 {
   "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
-    "@google/genai": "https://esm.sh/@google/genai@^1.41.0"
+    "react-dom/": "https://esm.sh/react-dom@18.2.0/",
+    "react/": "https://esm.sh/react@18.2.0/",
+    "react": "https://esm.sh/react@18.2.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0",
+    "react-markdown": "https://esm.sh/react-markdown@9.0.1",
+    "remark-gfm": "https://esm.sh/remark-gfm@4.0.0"
   }
 }
 </script>

@@ -58,7 +58,7 @@ const KeywordItem: React.FC<{ keyword: string; description: string }> = ({ keywo
 );
 
 
-const renderContent = (content: string, title: string) => {
+const renderContent = (content: string, title: string): React.ReactNode => {
     const config = sectionConfig[title];
     if (title.includes('추천 제품')) {
         const products = content.split('\n').filter(line => line.trim().startsWith('- '));
@@ -136,12 +136,11 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
                         <div className={`p-6 md:p-8`}>
                             <div className="flex items-center gap-4">
                                 <div className={`p-2.5 rounded-full ${classes.bg} ${classes.darkBg}`}>
-                                    {/* FIX: Explicitly provide the props type to React.cloneElement to fix the type error. */}
                                     {React.cloneElement<React.SVGProps<SVGSVGElement>>(config.icon, { className: `w-7 h-7 ${classes.text}` })}
                                 </div>
                                 <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{title}</h2>
                             </div>
-                            <div className="mt-5 pl-1 prose prose-md dark:prose-invert max-w-none">
+                            <div className="mt-5 pl-1 max-w-none">
                                 {renderContent(content, title)}
                             </div>
                         </div>
@@ -152,7 +151,6 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
                 <div className="p-6 md:p-8">
                     <div className="flex items-center gap-4">
                          <div className={`p-2.5 rounded-full ${colorClasses.purple.bg} ${colorClasses.purple.darkBg}`}>
-                            {/* FIX: Explicitly provide the props type to React.cloneElement to fix the type error. */}
                             {React.cloneElement<React.SVGProps<SVGSVGElement>>(reminderConfig.icon, { className: `w-7 h-7 ${colorClasses.purple.text}` })}
                         </div>
                         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">복약 알림 설정</h2>

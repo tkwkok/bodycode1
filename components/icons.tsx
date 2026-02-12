@@ -92,3 +92,15 @@ export const BeakerIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a8.25 8.25 0 005.25-15.754" />
   </svg>
 );
+
+export const BotIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.353-.026.692-.026 1.032 0 1.13.094 1.976 1.057 1.976 2.192V7.5M8.25 7.5h7.5m-7.5 0l-1.093 1.093c-.026.026-.05.054-.07.083l-2.01 2.512c-.222.278-.27.653-.122.95l.131.263c.18.358.553.535.918.42l2.36-1.18M8.25 7.5h7.5m-7.5 0c-.414 0-.75.336-.75.75v5.25c0 .414.336.75.75.75h7.5c.414 0 .75-.336.75-.75V8.25c0-.414-.336-.75-.75-.75M12 15.75a.75.75 0 01-.75-.75V13.5a.75.75 0 011.5 0v1.5a.75.75 0 01-.75.75z" />
+    </svg>
+);
+
+export const PencilSquareIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+    </svg>
+);

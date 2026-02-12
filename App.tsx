@@ -6,12 +6,13 @@ import ChatView from './components/ChatView';
 import LoadingSpinner from './components/LoadingSpinner';
 import { createChat } from './services/geminiService';
 import type { ChatMessage } from './types';
-import { SparklesIcon, UserIcon } from './components/icons';
+import { SparklesIcon } from './components/icons';
 import AdditionalInfoForm from './components/AdditionalInfoForm';
 import { fileToBase64 } from './utils/fileUtils';
 import Tabs from './components/Tabs';
 import AboutPage from './components/AboutPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
+import ConsultationPage from './components/ConsultationPage';
 
 const App: React.FC = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -67,7 +68,6 @@ const App: React.FC = () => {
 `
       };
       
-      // FIX: The `message` parameter for `sendMessageStream` should be an array of parts, not an object with a `parts` property.
       const stream = await chat.sendMessageStream({ message: [textPart, imagePart] });
 
       let botResponse = '';
@@ -173,28 +173,13 @@ const App: React.FC = () => {
                   </button>
                 </div>
               </div>
-               <div className="mt-12">
-                  <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-8 rounded-2xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
-                      <div>
-                          <h3 className="text-2xl font-bold">약사와의 1:1 VIP 밀착관리</h3>
-                          <p className="mt-2 text-slate-300 max-w-lg">
-                              심층 분석과 지속적인 건강 관리를 원하신다면, 전문 약사의 1:1 맞춤 상담을 신청하세요.
-                          </p>
-                      </div>
-                      <a 
-                          href="mailto:contact@bodycode.example.com?subject=바디코드: 약사 1:1 상담 신청"
-                          className="flex-shrink-0 inline-flex items-center justify-center px-6 py-3 bg-emerald-500 text-white font-bold rounded-full text-md shadow-lg hover:bg-emerald-600 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-emerald-300 dark:focus:ring-emerald-700"
-                      >
-                          <UserIcon className="w-5 h-5 mr-2" />
-                          약사 1:1 상담 신청하기
-                      </a>
-                  </div>
-              </div>
             </>
           )
         )}
         {activeTab === 'about' && <AboutPage />}
         {activeTab === 'privacy' && <PrivacyPolicyPage />}
+        {activeTab === 'consultation' && <ConsultationPage />}
+
 
         {error && !isChatting && activeTab === 'analysis' && (
           <div className="mt-8 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg" role="alert">
@@ -208,6 +193,7 @@ const App: React.FC = () => {
         <div className="mt-2 flex justify-center gap-4">
           <button onClick={() => setActiveTab('about')} className="hover:underline">바디코드 소개</button>
           <button onClick={() => setActiveTab('privacy')} className="hover:underline">개인정보처리방침</button>
+          <button onClick={() => setActiveTab('consultation')} className="hover:underline">1:1 상담 신청</button>
         </div>
         <p className="mt-2 font-semibold">이 분석은 정보 제공 목적으로, 의학적 진단을 대체할 수 없습니다. 정확한 진단은 전문가와 상의하세요.</p>
       </footer>

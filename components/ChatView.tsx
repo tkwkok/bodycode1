@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { ChatMessage } from '../types';
 import InitialAnalysis from './InitialAnalysis';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { UserIcon, BotIcon } from './icons';
 
 interface ChatViewProps {
     messages: ChatMessage[];
@@ -36,29 +39,46 @@ const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage, isLoading 
             <InitialAnalysis text={initialAnalysisText} />
 
             <div className="bg-white dark:bg-slate-900/50 shadow-lg rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
-                <div className="p-4 md:p-6 space-y-4 overflow-y-auto max-h-[50vh]">
+                <div className="p-4 md:p-6 space-y-6 overflow-y-auto max-h-[50vh]">
                     {followUpMessages.length > 0 ? (
                         followUpMessages.map((msg, index) => (
-                            <div key={index} className={`flex items-end gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                {msg.role === 'bot' && <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-cyan-400 flex-shrink-0"></div>}
+                            <div key={index} className={`flex items-start gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                {msg.role === 'bot' && 
+                                    <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                                        <BotIcon className="w-6 h-6 text-slate-500" />
+                                    </div>
+                                }
                                 <div
-                                    className={`max-w-md lg:max-w-lg px-4 py-3 rounded-2xl shadow-sm ${msg.role === 'user'
+                                    className={`max-w-md lg:max-w-xl px-4 py-3 rounded-2xl shadow-sm ${msg.role === 'user'
                                         ? 'bg-teal-600 text-white rounded-br-none'
-                                        : 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none border border-slate-200 dark:border-slate-600'
+                                        : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-bl-none border border-slate-200 dark:border-slate-700'
                                     }`}
                                 >
-                                    <p>{msg.text}</p>
+                                    {msg.role === 'bot' ? (
+                                        <article className="prose dark:prose-invert prose-sm max-w-none">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+                                        </article>
+                                    ) : (
+                                        <p>{msg.text}</p>
+                                    )}
                                 </div>
+                                {msg.role === 'user' && 
+                                    <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                                        <UserIcon className="w-6 h-6 text-slate-500" />
+                                    </div>
+                                }
                             </div>
                         ))
                     ) : (
-                        <p className="text-center text-slate-500 py-4">분석 결과에 대해 궁금한 점을 질문해보세요.</p>
+                         <p className="text-center text-slate-500 py-4">분석 결과에 대해 궁금한 점을 질문해보세요.</p>
                     )}
 
                     {isLoading && messages[messages.length - 1]?.role === 'user' && (
-                        <div className="flex items-end gap-3 justify-start">
-                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-cyan-400 flex-shrink-0"></div>
-                            <div className="px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-700 shadow-sm">
+                        <div className="flex items-start gap-3 justify-start">
+                            <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                                <BotIcon className="w-6 h-6 text-slate-500" />
+                            </div>
+                            <div className="px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                                 <div className="flex items-center justify-center gap-1.5">
                                     <span className="h-2 w-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
                                     <span className="h-2 w-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
