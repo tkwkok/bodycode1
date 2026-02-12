@@ -32,7 +32,7 @@ const ConsultationPage: React.FC = () => {
             </div>
             
             <form 
-                action="https://formspree.io/f/xykdkrbj" 
+                action="https://formspree.io/f/YOUR_FORMSPREE_ID" // TODO: Replace with your actual Formspree endpoint ID
                 method="POST" 
                 className="mt-10 max-w-lg mx-auto space-y-6"
             >
@@ -83,6 +83,9 @@ const ConsultationPage: React.FC = () => {
                     >
                         프리미엄 서비스 신청서 제출
                     </button>
+                     <p className="text-xs text-slate-500 mt-4">
+                        *신청서 제출 후, 담당자가 24시간 내에 연락드릴 예정입니다.
+                    </p>
                 </div>
             </form>
         </div>

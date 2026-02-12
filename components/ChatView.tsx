@@ -59,7 +59,7 @@ const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage, isLoading 
                                             <ReactMarkdown remarkPlugins={[remarkGfm]}>{typeof msg.text === 'string' ? msg.text : ''}</ReactMarkdown>
                                         </article>
                                     ) : (
-                                        <p>{msg.text}</p>
+                                        <p>{typeof msg.text === 'string' ? msg.text : ''}</p>
                                     )}
                                 </div>
                                 {msg.role === 'user' && 
@@ -73,7 +73,7 @@ const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage, isLoading 
                          <p className="text-center text-slate-500 py-4">분석 결과에 대해 궁금한 점을 질문해보세요.</p>
                     )}
 
-                    {isLoading && messages[messages.length - 1]?.role === 'user' && (
+                    {isLoading && messages.length > 0 && messages[messages.length - 1]?.role === 'user' && (
                         <div className="flex items-start gap-3 justify-start">
                             <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
                                 <BotIcon className="w-6 h-6 text-slate-500" />

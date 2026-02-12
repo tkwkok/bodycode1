@@ -99,11 +99,13 @@ const App: React.FC = () => {
 
       for await (const chunk of stream) {
         const chunkText = chunk.text;
-        if (chunkText) {
+        if (typeof chunkText === 'string') {
             botResponse += chunkText;
             setMessages(prev => {
               const newMessages = [...prev];
-              newMessages[newMessages.length - 1] = { role: 'bot', text: botResponse };
+              if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === 'bot') {
+                newMessages[newMessages.length - 1] = { role: 'bot', text: botResponse };
+              }
               return newMessages;
             });
         }
@@ -121,7 +123,7 @@ const App: React.FC = () => {
   };
   
   const handleSendMessage = async (text: string) => {
-    if (!chat) return;
+    if (!chat || !text.trim()) return;
 
     const userMessage: ChatMessage = { role: 'user', text: text };
     setMessages(prev => [...prev, userMessage]);
@@ -135,11 +137,13 @@ const App: React.FC = () => {
 
         for await (const chunk of stream) {
             const chunkText = chunk.text;
-            if(chunkText) {
+            if(typeof chunkText === 'string') {
                 botResponse += chunkText;
                 setMessages(prev => {
                     const newMessages = [...prev];
-                    newMessages[newMessages.length - 1] = { role: 'bot', text: botResponse };
+                     if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === 'bot') {
+                       newMessages[newMessages.length - 1] = { role: 'bot', text: botResponse };
+                     }
                     return newMessages;
                 });
             }
@@ -147,7 +151,15 @@ const App: React.FC = () => {
     } catch (err) {
         console.error(err);
         const errorMessage: ChatMessage = { role: 'bot', text: "죄송합니다, 답변을 생성하는 중 오류가 발생했습니다." };
-        setMessages(prev => [...prev, errorMessage]);
+        setMessages(prev => {
+            const newMessages = [...prev];
+            if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === 'bot') {
+              newMessages[newMessages.length - 1] = errorMessage;
+            } else {
+              newMessages.push(errorMessage);
+            }
+            return newMessages;
+        });
     } finally {
         setIsLoading(false);
     }
