@@ -88,7 +88,6 @@ const App: React.FC = () => {
         if (typeof chunkText === 'string') {
             fullBotResponse += chunkText;
             setMessages(prev => {
-                // FIX: Property 'at' does not exist on type 'ChatMessage[]'. Replaced `.at(-1)` with bracket notation for broader compatibility.
                 const lastMessage = prev[prev.length - 1];
                 if (lastMessage?.role === 'bot') {
                     const updatedLastMessage = { ...lastMessage, text: lastMessage.text + chunkText };
@@ -133,7 +132,6 @@ const App: React.FC = () => {
             if(typeof chunkText === 'string') {
                 fullBotResponse += chunkText;
                 setMessages(prev => {
-                    // FIX: Property 'at' does not exist on type 'ChatMessage[]'. Replaced `.at(-1)` with bracket notation for broader compatibility.
                     const lastMessage = prev[prev.length - 1];
                     if (lastMessage?.role === 'bot') {
                         const updatedLastMessage = { ...lastMessage, text: lastMessage.text + chunkText };
