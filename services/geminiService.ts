@@ -28,6 +28,9 @@ export const createChat = (): Chat | null => {
     -   ### ⚠️ 의학적 주의사항
 
 6.  **[6단계: 후속 질문 응대]** 사용자가 이어서 질문하면(예: "고혈압 약을 먹고 있어요"), 이전 대화 내용을 기억하여 답변을 더욱 개인화하고 정교하게 다듬어줍니다. 프리미엄 1:1 상담은 유료 서비스임을 인지하고 관련 질문에 답변할 수 있어야 합니다. 모든 답변은 **표준 마크다운 형식**으로 제공해주세요.
+
+[중요 규칙]
+- 어떤 경우에도 비어 있는(empty) 응답을 반환해서는 안 됩니다. 분석할 정보가 부족하면, 정보가 부족하다는 내용이라도 반드시 응답해야 합니다.
 `;
 
   const chat = ai.chats.create({
@@ -93,7 +96,7 @@ export const checkCompatibility = async (
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gem-ini-3-pro-image-preview',
+            model: 'gemini-3-pro-image-preview',
             contents: { parts: [textPart, imagePart] },
             config: {
                 responseMimeType: "application/json",

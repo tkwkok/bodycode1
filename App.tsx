@@ -25,8 +25,22 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('analysis');
   const [loadingMessage, setLoadingMessage] = useState('분석 중...');
 
+  const resetAnalysis = () => {
+    setImageFile(null);
+    setPreviewUrl(null);
+    setMessages([]);
+    setIsChatting(false);
+    setIsLoading(false);
+    setError(null);
+    setActiveTab('analysis');
+  };
+
   useEffect(() => {
-    setChat(createChat());
+    const chatInstance = createChat();
+    if (!chatInstance) {
+      setError('API 키가 설정되지 않았습니다. 앱을 실행하는 환경에 API_KEY가 올바르게 설정되었는지 확인해주세요.');
+    }
+    setChat(chatInstance);
   }, []);
 
   const handleImageChange = useCallback((file: File) => {
@@ -61,19 +75,22 @@ const App: React.FC = () => {
       setIsChatting(true);
 
       const userMessage: ChatMessage = { role: 'user', text: "제 건강 데이터입니다. 분석해주세요." };
-      setMessages([userMessage, { role: 'bot', text: '' }]); // Add bot placeholder immediately
+      setMessages([userMessage, { role: 'bot', text: '' }]);
       
       const imagePart = { inlineData: { mimeType: imageFile.type, data: base64Data } };
       const textPart = { text: "이 건강 데이터 이미지를 분석해주세요. 만약 추가 정보가 필요하다면, 질문을 통해 얻을 수 있다고 가정하고 분석을 진행해주세요." };
       
       const stream = await chat.sendMessageStream({ message: [textPart, imagePart] });
-
+      
+      let fullBotResponse = '';
       for await (const chunk of stream) {
         const chunkText = chunk.text;
         if (typeof chunkText === 'string') {
+            fullBotResponse += chunkText;
             setMessages(prev => {
+                // FIX: Property 'at' does not exist on type 'ChatMessage[]'. Replaced `.at(-1)` with bracket notation for broader compatibility.
                 const lastMessage = prev[prev.length - 1];
-                if (lastMessage && lastMessage.role === 'bot') {
+                if (lastMessage?.role === 'bot') {
                     const updatedLastMessage = { ...lastMessage, text: lastMessage.text + chunkText };
                     return [...prev.slice(0, -1), updatedLastMessage];
                 }
@@ -82,11 +99,18 @@ const App: React.FC = () => {
         }
       }
 
-    } catch (err) {
+      if (fullBotResponse.trim() === '') {
+        throw new Error('Empty response from AI');
+      }
+
+    } catch (err: any) {
       console.error(err);
-      setError('분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
-      setMessages(prev => prev.slice(0, 1)); // Remove bot placeholder
-      setIsChatting(false);
+      if (err.message === 'Empty response from AI') {
+          setError('AI로부터 유효한 응답을 받지 못했습니다. 네트워크 문제거나 일시적인 오류일 수 있습니다. 다시 시도해주세요.');
+      } else {
+          setError('분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      }
+      setMessages(prev => prev.slice(0, 1)); 
     } finally {
       setIsLoading(false);
       setLoadingMessage('분석 중...');
@@ -103,12 +127,15 @@ const App: React.FC = () => {
     try {
         const stream = await chat.sendMessageStream({ message: text });
         
+        let fullBotResponse = '';
         for await (const chunk of stream) {
             const chunkText = chunk.text;
             if(typeof chunkText === 'string') {
+                fullBotResponse += chunkText;
                 setMessages(prev => {
+                    // FIX: Property 'at' does not exist on type 'ChatMessage[]'. Replaced `.at(-1)` with bracket notation for broader compatibility.
                     const lastMessage = prev[prev.length - 1];
-                    if (lastMessage && lastMessage.role === 'bot') {
+                    if (lastMessage?.role === 'bot') {
                         const updatedLastMessage = { ...lastMessage, text: lastMessage.text + chunkText };
                         return [...prev.slice(0, -1), updatedLastMessage];
                     }
@@ -116,17 +143,17 @@ const App: React.FC = () => {
                 });
             }
         }
-    } catch (err) {
+        if (fullBotResponse.trim() === '') {
+            throw new Error('Empty response from AI');
+        }
+    } catch (err: any) {
         console.error(err);
-        const errorMessage: ChatMessage = { role: 'bot', text: "죄송합니다, 답변을 생성하는 중 오류가 발생했습니다." };
+        const errorMessageText = err.message === 'Empty response from AI' 
+            ? "AI로부터 유효한 응답을 받지 못했습니다."
+            : "죄송합니다, 답변을 생성하는 중 오류가 발생했습니다.";
+        const errorMessage: ChatMessage = { role: 'bot', text: errorMessageText };
         setMessages(prev => {
-            const newMessages = [...prev];
-            if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === 'bot') {
-              newMessages[newMessages.length - 1] = errorMessage;
-            } else {
-              newMessages.push(errorMessage);
-            }
-            return newMessages;
+            return [...prev.slice(0,-1), errorMessage];
         });
     } finally {
         setIsLoading(false);
@@ -136,9 +163,19 @@ const App: React.FC = () => {
   const renderActiveTab = () => {
     switch (activeTab) {
         case 'analysis':
-            return isChatting ? (
-                <ChatView messages={messages} onSendMessage={handleSendMessage} isLoading={isLoading} />
-            ) : (
+            if (isChatting) {
+                return (
+                    <>
+                        <ChatView messages={messages} onSendMessage={handleSendMessage} isLoading={isLoading} />
+                        <div className="text-center mt-6">
+                            <button onClick={resetAnalysis} className="px-6 py-2 bg-slate-200 text-slate-700 font-semibold rounded-full hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 transition-colors">
+                                새로 시작하기
+                            </button>
+                        </div>
+                    </>
+                );
+            }
+            return (
                 <div className="bg-white dark:bg-slate-900/50 shadow-lg rounded-2xl p-6 md:p-8 border border-slate-200/50 dark:border-slate-800 mt-6">
                     <ImageUploader 
                         onImageUpload={handleImageChange} 
@@ -150,7 +187,7 @@ const App: React.FC = () => {
                     <div className="mt-8 text-center">
                         <button
                             onClick={handleStartAnalysis}
-                            disabled={!imageFile || isLoading}
+                            disabled={!imageFile || isLoading || !chat}
                             className="inline-flex items-center justify-center px-8 py-4 bg-teal-600 text-white font-bold rounded-full text-lg shadow-lg hover:bg-teal-700 disabled:bg-slate-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800"
                         >
                             {isLoading ? (
@@ -175,21 +212,27 @@ const App: React.FC = () => {
     }
   }
 
-
   return (
     <div className="min-h-screen font-sans flex flex-col">
       <main className="container mx-auto px-4 py-8 md:py-12 max-w-4xl flex-grow flex flex-col">
         <Header />
         <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
         
-        {renderActiveTab()}
-
-        {error && !isChatting && activeTab === 'analysis' && (
+        {error && activeTab === 'analysis' && (
           <div className="mt-8 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg" role="alert">
-            <p className="font-bold">오류</p>
-            <p>{error}</p>
+            <div className="flex justify-between items-center">
+                <div>
+                    <p className="font-bold">오류</p>
+                    <p>{error}</p>
+                </div>
+                <button onClick={resetAnalysis} className="px-4 py-1 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600">
+                    다시 시도
+                </button>
+            </div>
           </div>
         )}
+        
+        {renderActiveTab()}
       </main>
       <footer className="text-center py-6 text-sm text-slate-500 dark:text-slate-400">
         <p>&copy; {new Date().getFullYear()} 바디코드. All rights reserved.</p>

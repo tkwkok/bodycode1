@@ -53,8 +53,8 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
     const [showHealthInsights, setShowHealthInsights] = useState(false);
 
     const parsedSections = useMemo(() => {
-        if (!text || typeof text !== 'string') {
-            return { sections: {}, supplements: [], tip: null };
+        if (!text || typeof text !== 'string' || text.trim() === '') {
+            return { sections: {}, supplements: [], tip: null, hasContent: false };
         }
 
         const sectionsMap: { [key: string]: string } = {};
@@ -97,11 +97,12 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
         const recommendedSupplementsText = sectionsMap['추천 영양 성분'] || '';
         const supplements = recommendedSupplementsText.split('\n').filter(line => line.trim().startsWith('- **')).map(line => line.substring(4).split(':**')[0].trim());
 
-        return { sections: sectionsMap, supplements, tip: tipOfTheDay };
+        const hasContent = Object.keys(sectionsMap).length > 0 || !!tipOfTheDay;
+        return { sections: sectionsMap, supplements, tip: tipOfTheDay, hasContent };
     }, [text]);
 
 
-    if (!text) {
+    if (!text || text.trim() === '') {
         return (
             <div className="bg-white dark:bg-slate-900 shadow-lg rounded-2xl p-6 md:p-8 flex items-center justify-center h-48 border border-slate-200 dark:border-slate-800 mt-6">
                 <p className="text-slate-500">분석 결과를 기다리는 중...</p>
@@ -109,7 +110,19 @@ const InitialAnalysis: React.FC<InitialAnalysisProps> = ({ text }) => {
         );
     }
     
-    const { sections, supplements, tip } = parsedSections;
+    const { sections, supplements, tip, hasContent } = parsedSections;
+
+    if (!hasContent) {
+        return (
+             <div className="bg-white dark:bg-slate-900/70 shadow-lg rounded-2xl p-6 md:p-8 mt-6 border border-slate-200 dark:border-slate-700">
+                 <h3 className="text-xl font-bold text-slate-800 dark:text-white">분석 결과</h3>
+                 <p className="mt-4 text-slate-600 dark:text-slate-300">AI가 분석 결과를 생성했지만, 예상치 못한 형식으로 제공되어 내용을 자동으로 분류할 수 없었습니다. 아래는 AI가 보낸 원본 텍스트입니다:</p>
+                 <article className="mt-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-md whitespace-pre-wrap font-mono text-sm prose dark:prose-invert max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+                 </article>
+            </div>
+        )
+    }
 
     return (
         <div className="space-y-6 mt-6">
